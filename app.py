@@ -1,124 +1,79 @@
 import streamlit as st
 
-def get_recommendation(diagnosis, consulted, gender):
-    link_all = "https://www.justdial.com/Rourkela/Gynaecologist-Obstetrician-Doctors/nct-10551087"
-    link_female = "https://www.justdial.com/Rourkela/Women-Gynaecologist-Obstetrician-Doctors-in-Rourkela-Sector-7/nct-12102921"
+st.set_page_config(page_title="PMDD Detection System", layout="centered")
+st.title("🌸 PMDD (Premenstrual Dysphoric Disorder) Detection System")
+st.write("This tool is designed to raise awareness and help identify potential PMDD symptoms. Please answer honestly.")
 
-    if diagnosis == "PMDD":
-        message = (
-            "⚠️ You are showing signs of Premenstrual Dysphoric Disorder (PMDD).\n"
-            "🩺 Please follow your doctor's prescription carefully.\n"
-            "💊 Continue medications and maintain proper lifestyle habits.\n"
-        )
-        if consulted == "no":
-            message += "‼️ It is highly advised to consult a gynecologist immediately.\n"
-        message += "\n👩‍⚕️ Recommended Doctors:\n"
-        if gender == "female":
-            message += f"🔗 Female Doctors Only: {link_female}\n"
-        message += f"🔗 All Doctors: {link_all}"
-        return message
+st.header("🔹 Personal Details")
+age = st.number_input("Age", min_value=10, max_value=50)
+gender = st.radio("Gender", ["Female", "Male", "Other"])
+weight = st.number_input("Weight (kg)", min_value=30.0, max_value=150.0)
+height_cm = st.number_input("Height (cm)", min_value=100.0, max_value=220.0)
+height_m = height_cm / 100 if height_cm else 0
+bmi = round(weight / (height_m**2), 2) if height_m else 0
+if bmi:
+    st.write(f"**Calculated BMI:** {bmi}")
 
-    elif diagnosis == "At Risk":
-        message = (
-            "⚠️ You may be at risk of developing PMDD.\n"
-            "🧘‍♀️ Suggested actions:\n"
-            "- Maintain a balanced diet\n"
-            "- Regular sleep and physical activity\n"
-            "- Manage stress and track menstrual health\n"
-            "- Avoid caffeine and alcohol during PMS\n"
-        )
-        if consulted == "no":
-            message += "\n‼️ Please consult a gynecologist for early evaluation.\n"
-        message += "\n👩‍⚕️ Doctors to consult:\n"
-        if gender == "female":
-            message += f"🔗 Female Doctors Only: {link_female}\n"
-        message += f"🔗 All Doctors: {link_all}"
-        return message
+haemoglobin = st.number_input("Haemoglobin (g/dL)", min_value=5.0, max_value=20.0)
 
-    else:
-        return (
-            "✅ You currently show no signs of PMDD.\n"
-            "🎉 Keep up the good habits! Stay healthy and emotionally strong.\n"
-            "🏃‍♀️ Exercise, eat well, get regular sleep and track your menstrual health.\n"
-            "💪 You're doing great — continue your wellness journey!\n"
-            "\n👩‍⚕️ If needed, consult a doctor anytime:\n"
-            f"🔗 Female Doctors Only: {link_female}\n"
-            f"🔗 All Doctors: {link_all}"
-        )
+st.header("🔹 Hormonal & Menstrual Health")
+thyroid = st.radio("Do you have thyroid issues?", ["Yes", "No"])
+pcos = st.radio("Have you been diagnosed with PCOS?", ["Yes", "No"])
+pcod = st.radio("Have you been diagnosed with PCOD?", ["Yes", "No"])
+married = st.radio("Are you married?", ["Yes", "No"])
+conceive_trouble = st.radio("Are you having trouble conceiving?", ["Yes", "No"]) if married == "Yes" else "N/A"
+menstrual_cycle_days = st.number_input("How many days does your menstruation cycle last?", min_value=1, max_value=50)
+irregular_periods = st.radio("Are your periods irregular?", ["Yes", "No"])
+trouble_menstruating = st.radio("Do you face trouble menstruating?", ["Yes", "No"])
+cramps_level = st.slider("Cramps level during periods", 0, 3)
+family_history = st.radio("Any family history of PMDD?", ["Yes", "No"])
 
-st.set_page_config(page_title="PMDD Detection", layout="centered")
-st.title("💮 PMDD Detection & Support System 💮")
+st.header("🔹 Lifestyle Factors")
+junk_food = st.radio("Do you eat junk food regularly?", ["Yes", "No"])
+exercise = st.radio("Do you exercise regularly?", ["Yes", "No"])
+physical_activity = st.selectbox("Your physical activity level", ["Low", "Moderate", "High"])
 
-st.markdown("Please fill in the following details to assess your symptoms:")
+st.header("🔹 Mood Tracking: Before / During / After Menstruation")
+st.write("Rate the following symptoms for each phase (0 = None, 3 = Severe)")
+mood_data = {}
+for symptom in ["Mood Swings", "Sadness / Depression", "Irritability", "Low Energy"]:
+    with st.expander(symptom):
+        mood_data[symptom] = {
+            "Before": st.slider(f"{symptom} (Before Period)", 0, 3, key=symptom + "_before"),
+            "During": st.slider(f"{symptom} (During Period)", 0, 3, key=symptom + "_during"),
+            "After": st.slider(f"{symptom} (After Period)", 0, 3, key=symptom + "_after")
+        }
 
-# SECTION 1: Personal Info
-gender = st.radio("Gender:", ["female", "male"])
-age = st.number_input("Your age:", 10, 60)
-first_period_age = st.number_input("Age at first period:", 8, 25)
-weight = st.number_input("Your weight (in kg):", 30.0, 150.0)
-hemoglobin = st.number_input("Haemoglobin level (g/dL):", 5.0, 20.0)
+st.header("🔹 Symptoms Checklist")
+before_symptoms = st.multiselect("What do you usually feel *before* your period?",
+    ["Mood Swings", "Headache", "Food Cravings", "Anxiety", "Bloating", "Back Pain", "Breast Tenderness"])
+during_symptoms = st.multiselect("What do you usually feel *during* your period?",
+    ["Pain/Cramps", "Low Energy", "Nausea", "Mood Changes", "Sleepiness"])
+after_symptoms = st.multiselect("What do you usually feel *after* your period?",
+    ["Relief", "Fatigue", "Irritability", "Low Mood", "Improved Focus"])
 
-# New Hormonal Questions
-thyroid = st.radio("Do you have thyroid issues?", ["yes", "no"])
-pcos = st.radio("Have you been diagnosed with PCOS?", ["yes", "no"])
-pcod = st.radio("Have you been diagnosed with PCOD?", ["yes", "no"])
+st.header("🔹 Medical Consultation")
+consulted_doctor = st.radio("Have you consulted a doctor?", ["Yes", "No"])
+medication = st.radio("Are you on any medication?", ["Yes", "No"])
+medicine_name = st.text_input("If yes, mention your medicines") if medication == "Yes" else "N/A"
+trouble_duration = st.text_input("Since when have you been facing these issues? (e.g., 6 months)")
+feedback = st.text_area("Any feedback or anything you'd like to share with us? (optional)")
 
-# SECTION 2: Menstrual Info
-married = st.radio("Are you married?", ["yes", "no"])
-if married == "yes":
-    conceive_problem = st.radio("Are you having trouble conceiving?", ["yes", "no"])
+score = (
+    mood_data["Mood Swings"]["Before"]
+    + mood_data["Sadness / Depression"]["Before"]
+    + mood_data["Irritability"]["Before"]
+    + mood_data["Low Energy"]["Before"]
+)
 
-family_history = st.radio("Any family history of PMDD?", ["yes", "no"])
-period_cycle = st.number_input("How many days does your menstruation cycle last?", 2, 10)
-trouble_menstruation = st.radio("Do you face trouble menstruating?", ["yes", "no"])
-irregular_periods = st.radio("Are your periods irregular?", ["yes", "no"])
-cramps = st.slider("Cramps level during periods (0–3):", 0, 3)
+st.header("🔍 PMDD Risk Assessment")
+if score <= 3:
+    st.success("✅ You are likely not showing strong signs of PMDD.")
+elif 4 <= score <= 6:
+    st.warning("⚠️ You may be at risk of PMDD. Consider consulting a doctor soon.")
+    st.markdown("[🔗 Female Gynaecologists in Rourkela](https://www.justdial.com/Rourkela/Women-Gynaecologist-Obstetrician-Doctors-in-Rourkela-Sector-7/nct-12102921)")
+elif score >= 7:
+    st.error("❗ PMDD symptoms detected. Please consult a doctor.")
+    st.markdown("[🔗 All Gynaecologists in Rourkela](https://www.justdial.com/Rourkela/Gynaecologist-Obstetrician-Doctors/nct-10551087)")
 
-# New Lifestyle Questions
-junk_food = st.radio("Do you eat junk food regularly?", ["yes", "no"])
-exercise = st.radio("Do you exercise regularly?", ["yes", "no"])
-physical_activity = st.selectbox("How would you rate your physical activity?", ["Low", "Moderate", "High"])
-
-# SECTION 3: Medical History and Symptoms
-consulted = st.radio("Have you consulted a doctor?", ["yes", "no"])
-takes_med = st.radio("Are you on any medication?", ["yes", "no"])
-if takes_med == "yes":
-    med_names = st.text_input("Mention your medicines:")
-
-duration_symptoms = st.text_input("Since when have you been facing these troubles? (e.g., 6 months)")
-
-mood_swings = st.slider("Mood Swings severity (0–3):", 0, 3)
-anxiety = st.slider("Anxiety/Depression severity (0–3):", 0, 3)
-irritability = st.slider("Irritability level (0–3):", 0, 3)
-sleep_issues = st.slider("Sleep issues severity (0–3):", 0, 3)
-fatigue = st.slider("Fatigue severity (0–3):", 0, 3)
-
-# Submit and Diagnosis
-if st.button("Submit"):
-    total_score = mood_swings + anxiety + irritability + sleep_issues + fatigue
-
-    if total_score <= 3:
-        diagnosis = "No PMDD"
-    elif 4 <= total_score <= 6:
-        diagnosis = "At Risk"
-    else:
-        diagnosis = "PMDD"
-
-    st.markdown("## 📝 Assessment Summary")
-    st.write(f"Age: {age}")
-    st.write(f"Weight: {weight} kg")
-    st.write(f"First Period Age: {first_period_age}")
-    st.write(f"Haemoglobin: {hemoglobin} g/dL")
-    st.write(f"Thyroid Issues: {thyroid}")
-    st.write(f"PCOS: {pcos}")
-    st.write(f"PCOD: {pcod}")
-    st.write(f"Cycle Duration: {period_cycle} days")
-    st.write(f"Symptoms Duration: {duration_symptoms}")
-    st.write(f"Symptom Score: {total_score} / 15")
-    st.write(f"Junk Food: {junk_food}")
-    st.write(f"Exercise: {exercise}")
-    st.write(f"Physical Activity: {physical_activity}")
-
-    st.success(f"🩺 Diagnosis: {diagnosis}")
-    st.markdown("## 💡 Recommendation")
-    st.info(get_recommendation(diagnosis, consulted, gender))
+st.caption("This is not a medical diagnosis. Always consult a doctor for professional guidance.")
